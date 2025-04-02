@@ -1,9 +1,11 @@
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from controls.forms import (
     FormSignup,
     FormSignin
 )
-from django.http import HttpResponse
+from django.contrib.auth import logout, login, authenticate
+from django.contrib import messages
 
 # Create your views here.
 def signin(request):
@@ -19,9 +21,21 @@ def signin(request):
         formset = FormSignin(request=request, data=request.POST)
 
         if formset.is_valid():
-            formset.authenticate_and_log()
+
+            username = formset.data.get('username')
+            password = formset.data.get('password')
+
+            user = authenticate(request, username=username, password=password)
+
+            if not user:
+                messages.error(request, 'User not found!')
+                return redirect('signin')
+            
+            login(request, user)
+            messages.success(request, 'Success!')
             
             return redirect('mentorados')
+        
         return redirect('signin')
 
 
@@ -43,3 +57,10 @@ def signup(request):
             return redirect('signin')
         return redirect('signup')
         
+def signout(request):
+    logout(request)
+
+    if request.user.is_authenticated:
+        return HttpResponse()
+    
+    return redirect('signin')

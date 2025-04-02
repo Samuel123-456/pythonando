@@ -104,20 +104,3 @@ class FormSignin(forms.Form):
         self.request = request
 
 
-
-    def authenticate_and_log(self):
-        clean_data = super().clean()
-
-        username = clean_data.get('username')
-        password = clean_data.get('password')
-
-        user = authenticate(self.request, username=username, password=password)
-
-        if not user:
-            messages.error(self.request, 'User not found!')
-            return
-        
-        login(self.request, user)
-        if user.is_authenticated:
-            messages.success(self.request, 'Success!')
-

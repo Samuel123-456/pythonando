@@ -12,7 +12,7 @@ class Navegator(models.Model):
 
 class Mentorados(models.Model):
     estagio_choices = {
-        "E1": '10-100k',
+        "E1": '10-100k', # Change Places
         "E2": '10-10k',
     }
 

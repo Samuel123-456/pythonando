@@ -24,7 +24,9 @@
         <a href="#" class="text-sm/6 font-semibold text-gray-100">Navigators</a>
       </div>
       <div class="hidden lg:flex lg:flex-1 lg:justify-end">
-        
+        {% if request.user.is_authenticated %}
+          <a href="{% url 'signout' %}" class="flex justify-center cursor-pointer rounded-md bg-red-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Logout</a>
+        {% endif %}
       </div>
     </nav>
     
@@ -36,13 +38,14 @@
     <div class="max-w-7xl mx-auto py-12">
         <div class="grid grid-cols-2 gap-4">
             <div>
-              <form action="" method="">
+              <form action="{% url 'mentorados' %}" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
                 <h2 class="mt-4 text-2xl/9 font-bold tracking-tight text-gray-100">Cadastre seus mentorados</h2> 
                 {% if messages %}
                     {% for message in messages %}
                         <div class="rounded-md {{message.tags}} mt-4">
                             <div class="flex">
-                              <div class="rounded-md bg-green-50 text-red-700 mt-4">
+                              <div class="rounded-md bg-green-500 text-gray-100 mt-4 p-4">
                                     {{message}}
 
                                 </div>
@@ -68,8 +71,9 @@
                         <label class="block text-sm/6 font-medium text-gray-200">Estágio</label>
                         <div class="mt-2">
                             <select name="estagio" id="" class="block w-full rounded-md bg-white/5 px-3 py-2 text-base text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6">
-         
-                                <option class="text-slate-900" value="">10-1000k</option>
+                                {% for k, v in estagios.items %}
+                                  <option class="text-slate-900" value="{{k}}">{{v}}</option>
+                                {% endfor %}
 
                             </select>
                            
@@ -82,8 +86,9 @@
                         <label class="block text-sm/6 font-medium text-gray-200">Navigator</label>
                         <div class="mt-2">
                             <select name="navigator" id="" class="block w-full rounded-md bg-white/5 px-3 py-2 text-base text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6">
-
-                                <option value="">Caio</option>      
+                                {% for navegator in navegators %}
+                                  <option value="{{navegator.id}}">{{navegator}}</option>      
+                                {% endfor %}
                               
                             </select>
                            
@@ -123,17 +128,17 @@
               </thead>
               <tbody class="divide-y divide-white/5">
                 
-               
+                {% for mentorado in mentorados %}
                   <tr>
                     <td class="py-4 pl-4 pr-8 sm:pl-6 lg:pl-8">
                       <div class="flex items-center gap-x-4">
-                        <img src="#" alt="" class="size-8 rounded-full bg-gray-800">
-                        <div class="truncate text-sm/6 font-medium text-white">Caio Sampaio</div>
+                        <img src="{{mentorado.foto.url}}" alt="" class="size-8 rounded-full bg-gray-800">
+                        <div class="truncate text-sm/6 font-medium text-white">{{mentorado.name}}</div>
                       </div>
                     </td>
                     <td class="hidden py-4 pl-0 pr-4 sm:table-cell sm:pr-8">
                       <div class="flex gap-x-3">
-                        <div class="rounded-md bg-gray-700/40 px-2 py-1 text-xs font-medium text-gray-400 ring-1 ring-inset ring-white/10">10-100k</div>
+                        <div class="rounded-md bg-gray-700/40 px-2 py-1 text-xs font-medium text-gray-400 ring-1 ring-inset ring-white/10">{{mentorado.estagio}}</div>
                       </div>
                     </td>
                     <td class="py-4 pl-0 pr-4 text-sm/6 sm:pr-8 lg:pr-20">
@@ -144,12 +149,13 @@
                         <div class="hidden text-white sm:block">Ativo</div>
                       </div>
                     </td>
-                    <td class="hidden py-4 pl-0 pr-8 text-sm/6 text-gray-400 md:table-cell lg:pr-20">26/03/2025</td>
+                    <td class="hidden py-4 pl-0 pr-8 text-sm/6 text-gray-400 md:table-cell lg:pr-20">{{mentorado.criado_em}}</td>
                     <td class="hidden py-4 pl-0 pr-8 text-sm/6 text-gray-400 md:table-cell lg:pr-20">
                      
-                        Caio Sampaio
+                       {{mentorado.navegator.name}}
                     </td>
                   </tr>
+                {% endfor %}
                 
               </tbody>
             </table>

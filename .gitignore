@@ -2,3 +2,4 @@ env/
 docs/
 /uploads/
 db.sqlite3
+*.png

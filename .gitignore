@@ -1,2 +1,4 @@
 env/
 docs/
+/uploads/
+db.sqlite3

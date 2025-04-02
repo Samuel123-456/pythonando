@@ -18,7 +18,7 @@ class Mentorados(models.Model):
 
 
     name = models.CharField(max_length=200)
-    foto = models.ImageField(upload_to='uploads/fotos')
+    foto = models.ImageField(upload_to='fotos')
     estagio = models.CharField(max_length=2, choices=estagio_choices)
 
     mentor = models.ForeignKey(User, on_delete=models.CASCADE)

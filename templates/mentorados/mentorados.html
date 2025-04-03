@@ -18,7 +18,7 @@
         </button>
       </div>
       <div class="hidden lg:flex lg:gap-x-12">
-        <a href="#" class="text-sm/6 font-semibold text-gray-100">Mentorados</a>
+        <a href="{% url 'mentorados' %}" class="text-sm/6 font-semibold text-gray-100">Mentorados</a>
         <a href="#" class="text-sm/6 font-semibold text-gray-100">Tarefas</a>
         <a href="#" class="text-sm/6 font-semibold text-gray-100">Progressos</a>
         <a href="#" class="text-sm/6 font-semibold text-gray-100">Navigators</a>
@@ -43,9 +43,9 @@
                 <h2 class="mt-4 text-2xl/9 font-bold tracking-tight text-gray-100">Cadastre seus mentorados</h2> 
                 {% if messages %}
                     {% for message in messages %}
-                        <div class="rounded-md {{message.tags}} mt-4">
+                        <div class="rounded-md  {{message.tags}} mt-4">
                             <div class="flex">
-                              <div class="rounded-md bg-green-500 text-gray-100 mt-4 p-4">
+                              <div class="rounded-md w-full bg-green-50 text-green-700 mt-4 p-2">
                                     {{message}}
 
                                 </div>
@@ -138,7 +138,7 @@
                     </td>
                     <td class="hidden py-4 pl-0 pr-4 sm:table-cell sm:pr-8">
                       <div class="flex gap-x-3">
-                        <div class="rounded-md bg-gray-700/40 px-2 py-1 text-xs font-medium text-gray-400 ring-1 ring-inset ring-white/10">{{mentorado.estagio}}</div>
+                        <div class="rounded-md bg-gray-700/40 px-2 py-1 text-xs font-medium text-gray-400 ring-1 ring-inset ring-white/10">{{mentorado.get_estagio_display}}</div>
                       </div>
                     </td>
                     <td class="py-4 pl-0 pr-4 text-sm/6 sm:pr-8 lg:pr-20">

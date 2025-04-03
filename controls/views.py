@@ -31,9 +31,7 @@ def signin(request):
                 messages.error(request, 'User not found!')
                 return redirect('signin')
             
-            login(request, user)
-            messages.success(request, 'Success!')
-            
+            login(request, user)            
             return redirect('mentorados')
         
         return redirect('signin')

@@ -28,11 +28,9 @@ def mentorados(request):
             navegator=navegator,
             mentor=request.user
         )
+        mentorado.save()
 
         messages.success(request, 'Mentorado Cadastrado com sucesso!')
-
-        mentorado.save()
-        
 
         return redirect('mentorados')
 
@@ -47,4 +45,5 @@ def mentorados(request):
         ctx['mentorados'] = mentorados
         ctx['navegators'] = navegators
         ctx['estagios'] = estagios
+
         return render(request, template_name, ctx)

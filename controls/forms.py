@@ -75,7 +75,7 @@ class FormSignup(forms.Form):
             password=data.get('password')
         )
         
-        messages.success(self.request, 'User creation was success!')
+        
 
 
 

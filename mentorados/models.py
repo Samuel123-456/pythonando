@@ -36,7 +36,7 @@ class Mentorados(models.Model):
         return super().save(*args, **kwargs)
 
     def __str__(self):
-        return self.name
+        return f'{self.name} - ({self.mentor})'
 
 class DisponibilidadeHorarios(models.Model):
     data_inicial = models.DateTimeField(null=True, blank=True)
@@ -62,3 +62,13 @@ class Reuniao(models.Model):
     mentorado = models.ForeignKey(Mentorados, on_delete=models.CASCADE)
     tag = models.CharField(max_length=2, choices=tag_choices)
     descricao = models.TextField()
+
+class Tarefa(models.Model):
+    mentorado = models.ForeignKey(Mentorados, on_delete=models.DO_NOTHING)
+    tarefa = models.CharField(max_length=255)
+    realizada = models.BooleanField(default=False)
+
+
+class Upload(models.Model):
+    mentorado = models.ForeignKey(Mentorados, on_delete=models.DO_NOTHING)
+    video = models.FileField(upload_to='video')

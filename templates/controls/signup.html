@@ -42,17 +42,17 @@
                 </div>
               </div>
               
-                {% if messages %}
-                    {% for message in messages %}
-                        <div class="rounded-md bg-red-50 text-red-700 mt-4">
-                            <div class="flex">
-                                <div class="flex w-full ml-3 py-4 justify-center">
-                                    <b>{{message}}</b>
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
-                {% endif %}
+              {% if messages %}
+                {% for message in messages %}
+                  <div class="rounded-md {{message.tags}} mt-4">
+                      <div class="flex">
+                          <div class="ml-3 py-4">
+                              {{message}}
+                          </div>
+                      </div>
+                  </div>
+                {% endfor %}
+              {% endif %}
   
               <div>
                 <button type="submit" class="flex w-full justify-center cursor-pointer rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Cadastrar</button>

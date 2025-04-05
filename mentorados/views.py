@@ -1,23 +1,25 @@
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect
 from mentorados.models import (
+    DisponibilidadeHorarios,
     Mentorados,
     Navegator,
-    DisponibilidadeHorarios,
     Reuniao,
+    Tarefa,
+    Upload,
 )
 
+from django.contrib.messages import constants
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from datetime import datetime, timedelta
 
 from mentorados.auth import valida_token
+from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponse
+
 
 # Create your views here.
-def _total_mentorados():
-    st = Mentorados.estagio_choices
-    print(st)
-
 @login_required
 def mentorados(request):
     template_name = 'mentorados/mentorados.html'
@@ -40,7 +42,7 @@ def mentorados(request):
         )
         mentorado.save()
 
-        messages.success(request, 'Mentorado Cadastrado com sucesso!')
+        messages.add_message(request, constants.SUCCESS, 'Mentorado Cadastrado com sucesso!')
 
         return redirect('mentorados')
 
@@ -60,16 +62,26 @@ def mentorados(request):
         ctx['mentorados'] = mentorados
         ctx['navegators'] = navegators
         ctx['estagios'] = estagios
-        ctx['data'] = data
         ctx['labels'] = labels
         ctx['values'] = values
+        ctx['data'] = data
 
 
         return render(request, template_name, ctx)
 
+@login_required 
 def reunioes(request):
     template_name = 'mentorados/reunioes.html'
     ctx = {}
+
+    if request.method == 'GET':
+        reunioes = Reuniao.objects.filter(
+            data__mentor=request.user
+        )
+
+        ctx['reunioes'] = reunioes
+
+        return render(request, template_name, ctx)
 
     if request.method == 'POST':
         date_string = request.POST.get('data')
@@ -82,17 +94,17 @@ def reunioes(request):
         )
 
         if disponibilidade.exists():
-            messages.success(request, 'Você já possui uma reunião em aberto')
+            messages.add_message(request, constants.ERROR, 'Você já possui uma reunião em aberto')
             return redirect('reunioes')
 
 
         disponibilidade = DisponibilidadeHorarios(
             data_inicial=date,
             mentor=mentor
-        )
+        ) 
         disponibilidade.save()
 
-
+        messages.add_message(request, constants.SUCCESS, 'Horário Marcado com Sucesso!')
         return redirect('reunioes')
     
     if request.method == 'GET':
@@ -108,11 +120,11 @@ def auth(request):
         token = request.POST.get('token')
         
         if not Mentorados.objects.filter(token=token).exists():
-            messages.error(request, 'Não encontrado, verifique o token!')
+            messages.add_message(request, constants.ERROR, 'Não encontrado, verifique o token!')
             return redirect('auth_mentorado')
         
 
-        response = redirect('escolher_dia')
+        response = redirect('tarefa_mentorado')
         response.set_cookie('auth_token', token, max_age=3600)
 
         return response
@@ -153,20 +165,141 @@ def agendar_reuniao(request):
     
     template_name = 'mentorados/agendar_reuniao.html'
     ctx = {}
+    mentorado = valida_token(request.COOKIES.get('auth_token'))
 
     if request.method == 'GET':
         date = request.GET.get("date")
         date = datetime.strptime(date, '%d-%m-%Y')
+
         horarios = DisponibilidadeHorarios.objects.filter(
             data_inicial__gte=date,
             data_inicial__lt=date + timedelta(days=1),
             agendado=False
         )
 
-        #{'horarios': horarios, 'tags': Reuniao.tag_choices}
+        #TODO: verificar se o horario que estão acessar é do mentor deste mentorado
+        
+
         ctx['horarios'] = horarios
         ctx['tags'] = Reuniao.tag_choices
         return render(request, template_name, ctx)
 
     if request.method == 'POST':
-        ...
+        horario_id = request.POST.get('horario')
+        tag = request.POST.get('tag')
+        descricao = request.POST.get("descricao")
+
+        #TODO: Realizar validações
+
+        reuniao = Reuniao(
+            mentorado=mentorado,
+            descricao=descricao,
+            data_id=horario_id,
+            tag=tag,
+        )
+        reuniao.save()
+
+        horario = DisponibilidadeHorarios.objects.get(id=horario_id)
+        horario.agendado = True
+        horario.save()
+
+        messages.add_message(request, constants.SUCCESS, 'Reunião agendada com sucesso.')
+        return redirect('escolher_dia')
+
+def tarefa(request, id):
+    mentorado = Mentorados.objects.get(id=id)
+    if mentorado.mentor != request.user:
+        raise Http404('Mentorado não partence a este mentor')
+
+    template_name = 'mentorados/tarefa.html'
+    ctx = {}
+
+    if request.method == 'POST':
+        _tarefa = request.POST.get('tarefa')
+
+        tarefa = Tarefa(mentorado=mentorado, tarefa=_tarefa)
+        tarefa.save()
+
+        return redirect(f'/mentorados/tarefa/{mentorado.id}')
+    
+    if request.method == 'GET':
+        tarefas = Tarefa.objects.filter(mentorado=mentorado)
+        videos = Upload.objects.filter(mentorado=mentorado)
+
+        ctx['mentorado'] = mentorado
+        ctx['tarefas'] = tarefas
+        ctx['videos'] = videos
+        
+        return render(request, template_name, ctx)
+    
+def upload(request, id):
+    mentorado = Mentorados.objects.get(id=id)
+    if mentorado.mentor != request.user:
+        raise Http404()
+    
+    video = request.FILES.get('video')
+    upload = Upload(
+        mentorado=mentorado,
+        video=video
+    )
+    upload.save()
+    return redirect(f'/mentorados/tarefa/{mentorado.id}')
+
+def tarefa_mentorado(request):
+    mentorado = valida_token(request.COOKIES.get('auth_token'))
+    if not mentorado:
+        return redirect('auth_mentorado')
+    
+    template_name = 'mentorados/tarefa_mentorado.html'
+    ctx = {}
+    if request.method == 'GET':
+        videos = Upload.objects.filter(mentorado=mentorado)
+        tarefas = Tarefa.objects.filter(mentorado=mentorado)
+
+        ctx['mentorado'] = mentorado
+        ctx['tarefas'] = tarefas
+        ctx['videos'] = videos
+
+        return render(request, template_name, ctx)
+
+@csrf_exempt
+def tarefa_alterar(request, id):
+    mentorado = valida_token(request.COOKIES.get('auth_token'))
+    if not mentorado:
+        return redirect('auth_mentorado')
+
+    tarefa = Tarefa.objects.get(id=id)
+    if mentorado != tarefa.mentorado:
+        raise Http404()
+    tarefa.realizada = not tarefa.realizada
+    tarefa.save()
+
+    return HttpResponse('teste')
+
+@login_required
+def navegator(request):
+    template_name = 'mentorados/navegator.html'
+    ctx = {}
+    if request.method == 'GET':
+        return render(request, template_name, ctx)
+    
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        
+        name = name.strip()
+        if not name:
+            messages.add_message(request, constants.ERROR, 'Nome não informado')
+            return redirect('navegator')
+        
+        if Navegator.objects.filter(name=name).exists():
+            messages.add_message(request, constants.ERROR, 'Navegator já existe')
+            return redirect('navegator')
+        
+        navegator = Navegator(
+            name=name,
+            mentor=request.user
+        )
+        navegator.save()
+        
+        messages.add_message(request, constants.SUCCESS, 'Navegator cadastrado com sucesso!')
+        return redirect('navegator') 

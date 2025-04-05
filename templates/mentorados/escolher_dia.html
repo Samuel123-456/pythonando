@@ -1,6 +1,10 @@
 {% extends "base/base.html" %}
 {% load static %}
 {% block 'body' %}
+    <header class="bg-slate-900">
+        {% include 'includes/navbar_mentorado.html' %}
+    </header>
+
   <div class="bg-[#040e1b] min-h-screen">
     <div class="max-w-7xl mx-auto py-8">
         <h2 class="mt-4 text-2xl/9 font-bold tracking-tight text-gray-100">Escolha o dia para reunião ( {{mentorado.mentor}} )</h2>
@@ -10,9 +14,7 @@
                     <div class="flex">
                         <div class="ml-3 py-4">
                             {{message}}
-
                         </div>
-
                     </div>
                 </div>
             {% endfor %}

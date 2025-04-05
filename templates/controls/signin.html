@@ -12,18 +12,19 @@
             <a href="{% url 'signup' %}" class="font-semibold text-indigo-300 hover:text-indigo-200">Crie sua conta aqui</a>
           </p>
 
+
+          
+
           {% if messages %}
-              {% for message in messages %}
-                  <div class="rounded-md bg-green-50 text-red-700 mt-4">
-                      <div class="flex">
-                          <div class="ml-3 py-4">
-                              {{message}}
-
-                          </div>
-
-                      </div>
-                  </div>
-              {% endfor %}
+            {% for message in messages %}
+                <div class="rounded-md {{message.tags}} mt-4">
+                    <div class="flex">
+                        <div class="ml-3 py-4">
+                            {{message}}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
           {% endif %}
         </div>
   
@@ -44,6 +45,10 @@
                     {{formset.password}}
                 </div>
               </div>
+
+              <p class="mt-2 text-sm/6 text-gray-500">
+                <a href="{% url 'auth_mentorado' %}" class="font-semibold text-indigo-300 hover:text-indigo-200">Click aqui para Mentorado</a>
+              </p>
   
   
               <div>

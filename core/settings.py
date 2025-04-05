@@ -1,4 +1,6 @@
 from pathlib import Path
+from django.contrib.messages import constants
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -115,6 +117,12 @@ STATIC_ROOT = BASE_DIR.joinpath('static')
 # MEDIA FILES
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR.joinpath('uploads')
+
+# CONSTANTE MESSAGES
+MESSAGE_TAGS = {
+    constants.SUCCESS: 'bg-green-50 text-green-700',
+    constants.ERROR: 'bg-red-100 text-red-700'
+}
 
 
 # Default primary key field type

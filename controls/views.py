@@ -6,6 +6,7 @@ from controls.forms import (
 )
 from django.contrib.auth import logout, login, authenticate
 from django.contrib import messages
+from django.contrib.messages import constants
 
 # Create your views here.
 def signin(request):
@@ -28,7 +29,7 @@ def signin(request):
             user = authenticate(request, username=username, password=password)
 
             if not user:
-                messages.error(request, 'User not found!')
+                messages.add_message(request, messages.ERROR, 'User not found!')
                 return redirect('signin')
             
             login(request, user)            
@@ -59,6 +60,7 @@ def signout(request):
     logout(request)
 
     if request.user.is_authenticated:
-        return HttpResponse()
+        messages.add_message(request, constants.ERROR, 'Erro ao fazer o Logout')
+        return redirect('/')
     
     return redirect('signin')

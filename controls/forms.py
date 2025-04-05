@@ -46,21 +46,21 @@ class FormSignup(forms.Form):
         confirm_password = data.get('confirm_password', '').strip()
 
         if not username:
-            messages.error(self.request, 'username not informed!')
+            messages.add_message(self.request, messages.constants.ERROR, 'username not informed!')
             raise forms.ValidationError('username not informed!')
         if User.objects.filter(username=username).exists():
-            messages.error(self.request, 'This user name already exists')
+            messages.add_message(self.request, messages.constants.ERROR, 'This user name already exists')
             raise forms.ValidationError('This user name already exists')
         if not password:
-            raise forms.ValidationError('password not informed!')
+            raise forms.ValidationError('password not informed!') 
         if len(password) < 5:
-            messages.error(self.request, 'password less then 5 digits')
+            messages.add_message(self.request, messages.constants.ERROR, 'password less then 5 digits')
             raise forms.ValidationError('password less then 5 digits')
         if not confirm_password:
-            messages.error(self.request, 'password confirmationo not informed')
+            messages.add_message(self.request, messages.constants.ERROR, 'password confirmationo not informed')
             raise forms.ValidationError('password confirmationo not informed')
         if confirm_password != password:
-            messages.error(self.request, 'different password confirmation!')
+            messages.add_message(self.request, messages.constants.ERROR, 'different password confirmation!')
             raise forms.ValidationError('different password confirmation!')
         
         
